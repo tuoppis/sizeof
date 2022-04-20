@@ -19,7 +19,7 @@ def format_size(size, scale=1000, digits=3):
     for S in prefix:
         if size < scale: return (f"{round_significant(size, digits)}{S}").rjust(digits + 2 + len(S))
         size /= scale
-    return f"{round_significant(size, digits)}E{'i' if scale == 1024 else ''}".rjust(digits + 3)
+    return f"{round_significant(size, digits)}E{'i' if scale == 1024 else ''}".rjust(digits + 2 + len(prefix[1]))
     
 def format_date(fdate, now, full_date = False):
     if fdate == None: return ""
@@ -101,14 +101,14 @@ def to_int_date(date_str, now):
         seconds = units[""] + units["sec"] + units["second"]
     )
     month = units["M"] + units["month"]
-    years = units["y"] + units["year"] + month // 12
+    year = now.year - units["y"] - units["year"] - month // 12
     month = now.month - month % 12
     
-    if month <= 0:
-        years += 1
+    if month <= 0: #change to a month in previous year
+        year -= 1
         month += 12
 
-    return (now.replace(year = now.year - years, month = month) - delta).timestamp()
+    return (now.replace(year = year, month = month) - delta).timestamp()
 
 def and_match(fname, patterns, on_empty = True):
     if not patterns: return on_empty
